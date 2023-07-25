@@ -21,7 +21,7 @@ export default function RootLayout({
       </Head>
       <body
         className={`${inter.className}
-        bg-white
+        bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500
         mx-2
         p-2`}
       >
