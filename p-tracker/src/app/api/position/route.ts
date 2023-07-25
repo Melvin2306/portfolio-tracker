@@ -1,20 +1,27 @@
-export async function GET(request: Request) {
-  const { pathname } = new URL(request.url);
-  const id = pathname.split("/").pop();
-  const headers = { "Content-Type": "application/json" };
+import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextApiRequest) {
   try {
-    const body = JSON.stringify({ id });
-    return new Response(body, { headers });
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return new Response(JSON.stringify({ error: err.message }), {
-        status: 500,
-        headers,
-      });
-    }
-    return new Response(JSON.stringify({ error: "Unknown error" }), {
-      status: 500,
-      headers,
+    const positions = await prisma.position.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+    return NextResponse.json(positions);
+  } catch (error: any) {
+    console.log(error);
+  }
+}
+
+export async function POST(request: NextApiRequest) {
+  try {
+    const { body } = request;
+    const position = await prisma.position.create({
+      data: body,
+    });
+    return NextResponse.json(position);
+  } catch (error: any) {
+    console.log(error);
   }
 }
