@@ -1,32 +1,16 @@
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { prisma } from "../../../../../lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextApiRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
   try {
-    const { id } = request.params;
-    const positions = await prisma.position.findMany({
+    const position = await prisma.position.findUnique({
       where: {
-        id: Number(id),
+        id,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return NextResponse.json(positions);
-  } catch (error: any) {
-    console.log(error);
-  }
-}
-
-export async function PATCH(request: NextRequest) {
-  try {
-    const { id } = request.params;
-    const { body } = request;
-    const position = await prisma.position.update({
-      where: {
-        id: Number(id),
-      },
-      data: body,
     });
     return NextResponse.json(position);
   } catch (error: any) {
@@ -34,15 +18,36 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = request.params;
-    const position = await prisma.position.delete({
-      where: {
-        id: Number(id),
-      },
+    const id = params.id;
+    let json = await request.json();
+
+    const updated_feedback = await prisma.position.update({
+      where: { id },
+      data: json,
     });
-    return NextResponse.json(position);
+
+    return NextResponse.json(updated_feedback);
+  } catch (error: any) {
+    console.log(error);
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = params.id;
+    await prisma.position.delete({
+      where: { id },
+    });
+
+    return new NextResponse(null, { status: 204 });
   } catch (error: any) {
     console.log(error);
   }
